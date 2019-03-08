@@ -15,10 +15,10 @@ public class CometDInitializer extends GenericServlet {
     public void init() throws ServletException {
         BayeuxServer bayeux = (BayeuxServer)getServletContext().getAttribute(BayeuxServer.ATTRIBUTE);
 
-        bayeux.addExtension(new AcknowledgedMessagesExtension());
-        TimesyncExtension ts = new TimesyncExtension();
-        ts.setAccuracyTarget(1000);
-        bayeux.addExtension(ts);
+        //bayeux.addExtension(new AcknowledgedMessagesExtension());
+        //TimesyncExtension ts = new TimesyncExtension();
+        //ts.setAccuracyTarget(1000);
+        //bayeux.addExtension(ts);
 
         new HelloService(bayeux);
     }
