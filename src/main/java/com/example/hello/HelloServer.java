@@ -1,5 +1,6 @@
 package com.example.hello;
 
+import ch.qos.logback.classic.Level;
 import org.cometd.server.CometDServlet;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -10,9 +11,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
-import java.util.EnumSet;
 
 public class HelloServer {
 
@@ -21,6 +21,10 @@ public class HelloServer {
 
   public static void main(String[] args) throws Exception {
     Server server;
+
+    // XXX Set root logger level to DEBUG
+    //ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    //rootLogger.setLevel(Level.DEBUG);
 
     int maxThreads = 100;
     int minThreads = 10;
@@ -41,13 +45,21 @@ public class HelloServer {
     String cometdPath = "/cometd/*";
 
     ServletHolder cometdServletHolder = new ServletHolder(CometDServlet.class);
-    cometdServletHolder.setInitParameter("ws.cometdURLMapping", cometdPath);
-    cometdServletHolder.setInitParameter("timeout", String.valueOf(30000));
+    cometdServletHolder.setInitParameter("broadcastToPublisher", String.valueOf(true));
     cometdServletHolder.setInitParameter("maxInterval", String.valueOf(20000));
-    cometdServletHolder.setInitParameter("maxConnectDelay", String.valueOf(30000));
-    cometdServletHolder.setInitParameter("multiFrameInterval", String.valueOf(-1));
-    cometdServletHolder.setInitParameter("logLevel", String.valueOf(2));
-    cometdServletHolder.setInitParameter("ws.bufferSize", String.valueOf(200000));
+    cometdServletHolder.setInitParameter("timeout", String.valueOf(30000));
+    cometdServletHolder.setInitParameter("ws.bufferSize", String.valueOf(8192));
+    cometdServletHolder.setInitParameter("ws.cometdURLMapping", cometdPath);
+    cometdServletHolder.setInitParameter("ws.idleTimeout", String.valueOf(30000));
+    cometdServletHolder.setInitParameter("ws.messagesPerFrame", String.valueOf(1));
+
+    // Outdated according to cometd-users@ list
+    //cometdServletHolder.setInitParameter("maxConnectDelay", String.valueOf(30000));
+    //cometdServletHolder.setInitParameter("multiFrameInterval", String.valueOf(-1));
+
+    // Removed in Cometd 3.x
+    //cometdServletHolder.setInitParameter("logLevel", String.valueOf(3));
+
     cometdServletHolder.setAsyncSupported(true);
     cometdServletHolder.setInitOrder(1);
 
@@ -69,7 +81,7 @@ public class HelloServer {
     */
 
     server.start();
-    server.dumpStdErr();
+    //server.dumpStdErr();
   }
 
 }
